@@ -1,0 +1,49 @@
+/* ########### CONSTANTS ########### */
+const MIN_TRANSACTION_VALUE = 1
+const MAX_TRANSACTION_VALUE = 2
+
+/* ########### RANGES ########### */
+range INITIAL_BALANCE = 4..4
+range FINAL_BALANCE = 2..6
+range TRANSACTION_RANGE = MIN_TRANSACTION_VALUE..MAX_TRANSACTION_VALUE
+
+/* ########### SETS ########### */
+set Users = { student, grandMother, loanCompany, university }
+
+/* ########### BANK ACCOUNT PROCESS ########### */
+BANKACCOUNT = (readBalance[initialBalance:INITIAL_BALANCE] -> calculateBalance[finalBalance:FINAL_BALANCE] -> updateAccount[finalBalance] -> BANKACCOUNT) .
+
+
+/* ########### STUDENT PROCESS ########### */
+STUDENT = ( readBalance[balance:INITIAL_BALANCE] -> WITHDRAW[balance] ),
+WITHDRAW [balance:INITIAL_BALANCE] = ( withdraw[withdrawalAmount:TRANSACTION_RANGE] -> CALCULATEBALANCE[balance - withdrawalAmount] ),
+CALCULATEBALANCE [balance:FINAL_BALANCE] = ( calculateBalance[balance] -> BUYSAMSUNGPHONE[balance] ),
+BUYSAMSUNGPHONE [balance:FINAL_BALANCE] = (buySamsungPhone -> updateAccount[balance] -> STUDENT ) .
+
+
+/* ########### GRAND MOTHER PROCESS ########### */
+GRANDMOTHER = ( readBalance[balance:INITIAL_BALANCE] -> DEPOSIT[balance] ),
+DEPOSIT [balance:INITIAL_BALANCE] = ( deposit[birthdayPresent:TRANSACTION_RANGE] -> CALCULATEBALANCE[balance + birthdayPresent] ),
+CALCULATEBALANCE [balance:FINAL_BALANCE] = ( calculateBalance[balance] -> updateAccount[balance] -> SENDCARD ),
+SENDCARD = ( sendECard -> GRANDMOTHER ) .
+
+
+/* ########### LOAN COMPANY PROCESS ########### */
+LOANCOMPANY = ( readBalance[balance:INITIAL_BALANCE] -> DEPOSIT[balance] ),
+DEPOSIT [balance:INITIAL_BALANCE] = ( deposit[loanAmount:TRANSACTION_RANGE] -> CALCULATEBALANCE[balance + loanAmount] ),
+CALCULATEBALANCE [balance:FINAL_BALANCE] = ( calculateBalance[balance] -> updateAccount[balance] ->  LOANCOMPANY ) .
+
+
+/* ########### UNIVERSITY PROCESS ########### */
+UNIVERSITY = ( readBalance[balance:INITIAL_BALANCE] -> WITHDRAW[balance] ),
+WITHDRAW [balance:INITIAL_BALANCE] = ( withdraw[universityFees:TRANSACTION_RANGE] -> CALCULATEBALANCE[balance - universityFees] ),
+CALCULATEBALANCE [balance:FINAL_BALANCE] = ( calculateBalance[balance] -> updateAccount[balance] -> UNIVERSITY ) .
+
+
+/* ########### BANKING SYSTEM PROCESS ########### */
+|| BANKING_SYSTEM = ( student : STUDENT
+					|| grandMother : GRANDMOTHER
+					|| loanCompany : LOANCOMPANY
+					|| university : UNIVERSITY
+					|| Users  :: BANKACCOUNT).
+
